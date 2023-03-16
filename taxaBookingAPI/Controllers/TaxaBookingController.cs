@@ -15,11 +15,13 @@ public class TaxaBookingController : ControllerBase
 {
     private readonly ILogger<TaxaBookingController> _logger;
     private readonly string _filePath;
+    private readonly string _ipadresse;
 
     public TaxaBookingController(ILogger<TaxaBookingController> logger, IConfiguration config)
     {
         _logger = logger;
         _filePath = config["FilePath"] ?? "/srv";
+        _ipadresse = config["IPadresse"];
     }
 
 
@@ -36,18 +38,15 @@ public class TaxaBookingController : ControllerBase
 
         try
         {
-            var factory = new ConnectionFactory { HostName = "172.17.0.2" };
+            var factory = new ConnectionFactory { HostName = _ipadresse };
             using var connection = factory.CreateConnection();
             using var channel = connection.CreateModel();
-
 
             channel.QueueDeclare(queue: "hello",
                                  durable: false,
                                  exclusive: false,
                                  autoDelete: false,
                                  arguments: null);
-
-           
 
             string message = JsonSerializer.Serialize(planDTO);
 
@@ -61,14 +60,17 @@ public class TaxaBookingController : ControllerBase
             _logger.LogInformation("PlanDTO oprettet");
 
             Console.WriteLine($"Plan sendt:\n Kundenavn: {planDTO.KundeNavn}\nStarttidspunkt: {planDTO.StartTidspunkt}\nStartsted: {planDTO.StartSted}\nSlutSted: {planDTO.SlutSted}");
-
         }
+
         catch (Exception ex)
         {
             _logger.LogError(ex.Message);
             return StatusCode(500, $"Internal server error.");
         }
         return Ok(planDTO);
+    }
+
+
 /*
 {
     "BookingId": 1,
@@ -82,23 +84,18 @@ public class TaxaBookingController : ControllerBase
  */
 
 
-    }
-
     [HttpGet("modtag")]
     public async Task<ActionResult> ModtagPlanDTO()
     {
         try
         {
-          
-
             var bytes = await System.IO.File.ReadAllBytesAsync(_filePath);
 
             _logger.LogInformation("csv fil modtaget");
 
             return File(bytes, "text/plain", Path.GetFileName(_filePath));
-
-            
         }
+
         catch (Exception ex)
         {
             _logger.LogError(ex.Message);
