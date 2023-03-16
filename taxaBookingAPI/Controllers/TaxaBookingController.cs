@@ -15,13 +15,13 @@ public class TaxaBookingController : ControllerBase
 {
     private readonly ILogger<TaxaBookingController> _logger;
     private readonly string _filePath;
-    private readonly string _ipadresse;
+    private readonly string _hostName;
 
     public TaxaBookingController(ILogger<TaxaBookingController> logger, IConfiguration config)
     {
         _logger = logger;
         _filePath = config["FilePath"] ?? "/srv";
-        _ipadresse = config["IPadresse"];
+        _hostName = config["HostnameRabbit"];
     }
 
 
@@ -38,7 +38,7 @@ public class TaxaBookingController : ControllerBase
 
         try
         {
-            var factory = new ConnectionFactory { HostName = _ipadresse };
+            var factory = new ConnectionFactory { HostName = _hostName };
             using var connection = factory.CreateConnection();
             using var channel = connection.CreateModel();
 
