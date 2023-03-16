@@ -14,10 +14,12 @@ namespace taxaBookingAPI.Controllers;
 public class TaxaBookingController : ControllerBase
 {
     private readonly ILogger<TaxaBookingController> _logger;
+    private readonly string _filePath;
 
-    public TaxaBookingController(ILogger<TaxaBookingController> logger)
+    public TaxaBookingController(ILogger<TaxaBookingController> logger, IConfiguration config)
     {
         _logger = logger;
+        _filePath = config["FilePath"] ?? "/srv";
     }
 
 
@@ -34,7 +36,7 @@ public class TaxaBookingController : ControllerBase
 
         try
         {
-            var factory = new ConnectionFactory { HostName = "localhost" };
+            var factory = new ConnectionFactory { HostName = "172.17.0.2" };
             using var connection = factory.CreateConnection();
             using var channel = connection.CreateModel();
 
@@ -87,13 +89,13 @@ public class TaxaBookingController : ControllerBase
     {
         try
         {
-            var filePath = "/Users/frederiklindhard/Downloads/Datahub-diagram_rigtige.png"; // Here, you should validate the request and the existance of the file.
+          
 
-            var bytes = await System.IO.File.ReadAllBytesAsync(filePath);
+            var bytes = await System.IO.File.ReadAllBytesAsync(_filePath);
 
-            _logger.LogInformation("fil oprettet");
+            _logger.LogInformation("csv fil modtaget");
 
-            return File(bytes, "text/plain", Path.GetFileName(filePath));
+            return File(bytes, "text/plain", Path.GetFileName(_filePath));
 
             
         }
