@@ -70,36 +70,23 @@ public class TaxaBookingController : ControllerBase
         return Ok(planDTO);
     }
 
-
-/*
-{
-    "BookingId": 1,
-    "BookingTidspunkt": "2023-09-23",
-    "KundeNavn": "Jacob",
-    "TelefonNR": "20384929",
-    "StartTidspunkt": "2023-09-23",
-    "StartSted": "Rosenhøj 60",
-    "SlutSted": "Aarhus H"
-}
- */
-
-
     [HttpGet("modtag")]
     public async Task<ActionResult> ModtagPlanDTO()
     {
         try
         {
-            var bytes = await System.IO.File.ReadAllBytesAsync(_filePath);
+            var bytes = await System.IO.File.ReadAllBytesAsync(Path.Combine(_filePath, "planListe.csv"));
 
-            _logger.LogInformation("csv fil modtaget");
+            _logger.LogInformation("planListe.csv fil modtaget");
 
-            return File(bytes, "text/plain", Path.GetFileName(_filePath));
+            return File(bytes, "text/csv", Path.GetFileName(Path.Combine(_filePath, "planListe.csv")));
+
         }
 
         catch (Exception ex)
         {
             _logger.LogError(ex.Message);
-            return StatusCode(500, $"Internal server error.");
+            return StatusCode(500);
         }
 
     }
