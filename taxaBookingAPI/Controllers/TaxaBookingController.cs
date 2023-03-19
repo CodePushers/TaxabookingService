@@ -59,13 +59,13 @@ public class TaxaBookingController : ControllerBase
 
             _logger.LogInformation("PlanDTO oprettet");
 
-            Console.WriteLine($"Plan sendt:\n Kundenavn: {planDTO.KundeNavn}\nStarttidspunkt: {planDTO.StartTidspunkt}\nStartsted: {planDTO.StartSted}\nSlutSted: {planDTO.SlutSted}");
+            Console.WriteLine($"[*] Plan sendt:\n\tKundenavn: {planDTO.KundeNavn}\n\tStarttidspunkt: {planDTO.StartTidspunkt}\n\tStartsted: {planDTO.StartSted}\n\tSlutSted: {planDTO.SlutSted}");
         }
 
         catch (Exception ex)
         {
             _logger.LogError(ex.Message);
-            return StatusCode(500, $"Internal server error.");
+            return StatusCode(500);
         }
         return Ok(planDTO);
     }
