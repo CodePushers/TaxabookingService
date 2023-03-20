@@ -112,8 +112,10 @@ public IEnumerable<string> Get()
    foreach (var attribute in assembly.GetCustomAttributesData())
    {
       properties.Add($"{attribute.AttributeType.Name} - {attribute.ToString()}");
+      _logger.LogInformation("Version blevet kaldt");
    }
    return properties;
+    
 }
 
 }
