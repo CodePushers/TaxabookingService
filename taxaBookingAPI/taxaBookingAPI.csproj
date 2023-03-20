@@ -4,7 +4,19 @@
     <TargetFramework>net7.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
-  </PropertyGroup>
+    <Company>Quick Go Taxa A/S</Company>
+    <Authors>Git Pushers</Authors>
+    <Copyright>2022 HTU Aps</Copyright>
+
+
+    <AssemblyVersion>1.0.1.1</AssemblyVersion>
+    <FileVersion>1.0.1.1</FileVersion>
+    <InformationalVersion>1.0.0</InformationalVersion>
+    <Description>
+      1.0.0 Updated with semantic versioning
+      0.9.0 Dockerfile Service Added to App
+    </Description>
+    </PropertyGroup>
 
   <PropertyGroup Condition=" '$(RunConfiguration)' == 'https' " />
   <PropertyGroup Condition=" '$(RunConfiguration)' == 'http' " />
