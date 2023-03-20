@@ -20,11 +20,12 @@ public class TaxaBookingController : ControllerBase
     public TaxaBookingController(ILogger<TaxaBookingController> logger, IConfiguration config)
     {
         _logger = logger;
+        // Henter miljø variabel "FilePath" og "HostnameRabbit" fra docker-compose
         _filePath = config["FilePath"] ?? "/srv";
         _hostName = config["HostnameRabbit"];
     }
 
-
+    // Opretter en PlanDTO ud fra BookingDTO
     [HttpPost("opretbooking")]
     public IActionResult OpretBooking(BookingDTO bookingDTO)
     {
@@ -38,20 +39,29 @@ public class TaxaBookingController : ControllerBase
 
         try
         {
-            var factory = new ConnectionFactory { HostName = _hostName };
+            //Opretter forbindelse til RabbitMQ
+            var factory = new ConnectionFactory
+            {
+                HostName = _hostName
+            };
+
             using var connection = factory.CreateConnection();
             using var channel = connection.CreateModel();
 
+            // Opretter en kø "hello" hvis den ikke allerede findes i vores rabbitmq-server
             channel.QueueDeclare(queue: "hello",
                                  durable: false,
                                  exclusive: false,
                                  autoDelete: false,
                                  arguments: null);
 
+            // Serialiseres til JSON
             string message = JsonSerializer.Serialize(planDTO);
 
+            // Konverteres til byte-array
             var body = Encoding.UTF8.GetBytes(message);
 
+            // Sendes til hello-køen
             channel.BasicPublish(exchange: string.Empty,
                                  routingKey: "hello",
                                  basicProperties: null,
@@ -70,15 +80,18 @@ public class TaxaBookingController : ControllerBase
         return Ok(planDTO);
     }
 
+    // Henter CSV-fil
     [HttpGet("modtag")]
     public async Task<ActionResult> ModtagPlanDTO()
     {
         try
         {
+            //Læser indholdet af CSV-fil fra filsti (_filePath)
             var bytes = await System.IO.File.ReadAllBytesAsync(Path.Combine(_filePath, "planListe.csv"));
 
             _logger.LogInformation("planListe.csv fil modtaget");
 
+            // Returnere CSV-filen med indholdet
             return File(bytes, "text/csv", Path.GetFileName(Path.Combine(_filePath, "planListe.csv")));
 
         }
