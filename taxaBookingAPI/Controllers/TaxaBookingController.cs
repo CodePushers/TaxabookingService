@@ -22,6 +22,7 @@ public class TaxaBookingController : ControllerBase
         _logger = logger;
         // Henter miljø variabel "FilePath" og "HostnameRabbit" fra docker-compose
         _filePath = config["FilePath"] ?? "/srv";
+        //_logger.LogInformation("FilePath er sat til: [$_filePath]"); virker måske
         _hostName = config["HostnameRabbit"];
     }
 
