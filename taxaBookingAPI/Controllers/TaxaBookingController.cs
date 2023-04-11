@@ -17,13 +17,20 @@ public class TaxaBookingController : ControllerBase
     private readonly string _filePath;
     private readonly string _hostName;
 
+    
+
     public TaxaBookingController(ILogger<TaxaBookingController> logger, IConfiguration config)
     {
         _logger = logger;
         // Henter miljø variabel "FilePath" og "HostnameRabbit" fra docker-compose
         _filePath = config["FilePath"] ?? "/srv";
-        //_logger.LogInformation("FilePath er sat til: [$_filePath]"); virker måske
+        _logger.LogInformation($"FilePath er sat til: {_filePath}");
         _hostName = config["HostnameRabbit"];
+
+        var hostName = System.Net.Dns.GetHostName();
+        var ips = System.Net.Dns.GetHostAddresses(hostName);
+        var _ipaddr = ips.First().MapToIPv4().ToString();
+        _logger.LogInformation(1, $"Taxabooking responding from {_ipaddr}");
     }
 
     // Opretter en PlanDTO ud fra BookingDTO
@@ -91,6 +98,8 @@ public class TaxaBookingController : ControllerBase
             var bytes = await System.IO.File.ReadAllBytesAsync(Path.Combine(_filePath, "planListe.csv"));
 
             _logger.LogInformation("planListe.csv fil modtaget");
+
+            _logger.LogInformation($"FilePath er sat til: {_filePath}");
 
             // Returnere CSV-filen med indholdet
             return File(bytes, "text/csv", Path.GetFileName(Path.Combine(_filePath, "planListe.csv")));
