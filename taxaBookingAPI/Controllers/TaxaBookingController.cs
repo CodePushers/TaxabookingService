@@ -24,6 +24,14 @@ public class TaxaBookingController : ControllerBase
         _filePath = config["FilePath"] ?? "/srv";
         //_logger.LogInformation("FilePath er sat til: [$_filePath]"); virker måske
         _hostName = config["HostnameRabbit"];
+
+        _logger.LogInformation($"Filepath: {_filePath}");
+        _logger.LogInformation($"Connection: {_hostName}");
+
+        var hostName = System.Net.Dns.GetHostName();
+        var ips = System.Net.Dns.GetHostAddresses(hostName);
+        var _ipaddr = ips.First().MapToIPv4().ToString();
+        _logger.LogInformation(1, $"TaxaBooking responding from {_ipaddr}");
     }
 
     // Opretter en PlanDTO ud fra BookingDTO
@@ -49,12 +57,14 @@ public class TaxaBookingController : ControllerBase
             using var connection = factory.CreateConnection();
             using var channel = connection.CreateModel();
 
+            channel.ExchangeDeclare(exchange: "FleetService", type: ExchangeType.Topic);
+
             // Opretter en kø "hello" hvis den ikke allerede findes i vores rabbitmq-server
-            channel.QueueDeclare(queue: "hello",
-                                 durable: false,
-                                 exclusive: false,
-                                 autoDelete: false,
-                                 arguments: null);
+            //channel.QueueDeclare(queue: "hello",
+            //                     durable: false,
+            //                     exclusive: false,
+            //                     autoDelete: false,
+            //                     arguments: null);
 
             // Serialiseres til JSON
             string message = JsonSerializer.Serialize(planDTO);
@@ -63,10 +73,11 @@ public class TaxaBookingController : ControllerBase
             var body = Encoding.UTF8.GetBytes(message);
 
             // Sendes til hello-køen
-            channel.BasicPublish(exchange: string.Empty,
-                                 routingKey: "hello",
+            channel.BasicPublish(exchange: "FleetService",
+                                 routingKey: "PlanDTO",
                                  basicProperties: null,
                                  body: body);
+
 
             _logger.LogInformation("PlanDTO oprettet");
 
