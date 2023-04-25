@@ -4,6 +4,8 @@ using System.Text.Json.Serialization;
 using System.Text;
 using RabbitMQ.Client;
 using System.Net;
+using Microsoft.AspNetCore.Connections;
+using Microsoft.AspNetCore.Authorization;
 
 namespace taxaBookingAPI.Controllers;
 
@@ -35,6 +37,7 @@ public class TaxaBookingController : ControllerBase
     }
 
     // Opretter en PlanDTO ud fra BookingDTO
+    [Authorize]
     [HttpPost("opretbooking")]
     public IActionResult OpretBooking(BookingDTO bookingDTO)
     {
@@ -93,6 +96,7 @@ public class TaxaBookingController : ControllerBase
     }
 
     // Henter CSV-fil
+    [Authorize]
     [HttpGet("modtag")]
     public async Task<ActionResult> ModtagPlanDTO()
     {
@@ -116,19 +120,21 @@ public class TaxaBookingController : ControllerBase
 
     }
 
-[HttpGet("version")]
-public IEnumerable<string> Get()
-{
-   var properties = new List<string>();
-   var assembly = typeof(Program).Assembly;
-   foreach (var attribute in assembly.GetCustomAttributesData())
-   {
-      properties.Add($"{attribute.AttributeType.Name} - {attribute.ToString()}");
-      _logger.LogInformation("Version blevet kaldt");
-   }
-   return properties;
-    
-}
+
+    [Authorize]
+    [HttpGet("version")]
+    public IEnumerable<string> Get()
+    {
+        var properties = new List<string>();
+        var assembly = typeof(Program).Assembly;
+        foreach (var attribute in assembly.GetCustomAttributesData())
+        {
+            properties.Add($"{attribute.AttributeType.Name} - {attribute.ToString()}");
+            _logger.LogInformation("Version blevet kaldt");
+        }
+        return properties;
+
+    }
 
 }
 
