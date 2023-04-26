@@ -8,16 +8,12 @@ using System.Text;
 var logger = NLog.LogManager.Setup().LoadConfigurationFromAppSettings().GetCurrentClassLogger();
 logger.Debug("init main");
 
-IConfiguration config = new ConfigurationBuilder()
-                .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
-                .Build();
-
 try
 {
     var builder = WebApplication.CreateBuilder(args);
 
-    string mySecret = config["Secret"] ?? "none";
-    string myIssuer = config["Issuer"] ?? "none";
+    string mySecret = Environment.GetEnvironmentVariable("Secret") ?? "none";
+    string myIssuer = Environment.GetEnvironmentVariable("Issuer") ?? "none";
 
     logger.Info($"MySecret: {mySecret}, MyIssuer: {myIssuer}");
 
